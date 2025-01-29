@@ -85,7 +85,7 @@ body {
     left: 100%;
     bottom: 0;
 
-    opacity: 0;
+    opacity: 1;
     background: #17a2b8;
     animation: blink 2s ease-in-out infinite;
     transform: translateY(-50%);
@@ -93,7 +93,7 @@ body {
 
 @keyframes blink {
     50% { 
-        opacity: 1; 
+        opacity: 0; 
         height: 0%;
     }
 }
