@@ -1,5 +1,5 @@
 function run() {
-    const source = editor.value;
+    const source = inputField.value;
 
     output.innerHTML = "";
     hadError = false;
@@ -15,4 +15,6 @@ function run() {
     tokens.forEach(token => {
         println(token.toString());
     });
+
+    console.log("Output: " + output.innerHTML);
 }
