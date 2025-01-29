@@ -1,4 +1,5 @@
 // Fetch all the required elements.
+const inputField = document.getElementById("input-field");
 const editor = document.getElementById("editor");
 const output = document.getElementById("output");
 
