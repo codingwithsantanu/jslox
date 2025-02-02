@@ -1,21 +1,19 @@
 class GenerateAst {
     constructor() {
-        this.defineAst("Expr", [
-            "Binary   : left, operator, right",
-            "Grouping : expression",
-            "Literal  : value",
-            "Unary    : operator, right", //
-            "Variable : name",
-            "Assign   : name, value", //
-            "Logical  : left, operator, right", //
-            "Call     : callee, paren, _arguments",
-            "Get      : object, name",
-            "Set      : object, name, value",
-            "This     : keyword", //
-            "Super    : keyword, method"
-        ]);
-
-        return;
+        // this.defineAst("Expr", [
+        //     "Binary   : left, operator, right",
+        //     "Grouping : expression",
+        //     "Literal  : value",
+        //     "Unary    : operator, right", //
+        //     "Variable : name",
+        //     "Assign   : name, value", //
+        //     "Logical  : left, operator, right", //
+        //     "Call     : callee, paren, _arguments",
+        //     "Get      : object, name",
+        //     "Set      : object, name, value",
+        //     "This     : keyword", //
+        //     "Super    : keyword, method"
+        // ]);
         
         this.defineAst("Stmt", [
             "Expression : expression",

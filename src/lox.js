@@ -22,17 +22,19 @@ function run() {
         println(token.toString());
     });
 
+    println();
+
     const parser = new Parser(tokens);
-    const expression = parser.parse();
+    const statements = parser.parse();
 
     if (hadError)
         return;
 
-    println();
-    println(new AstPrinter().print(expression));
+    // println();
+    // println(new AstPrinter().print(expression));
     
     println();
-    interpreter.interpret(expression);
+    interpreter.interpret(statements);
 
     // console.log("Output: " + output.innerHTML);
 }

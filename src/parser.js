@@ -5,16 +5,17 @@ class Parser {
     }
 
     parse() {
-        try {
-            return this.expression();
-        } catch (error) {
-            return null;
+        let statements = [];
+        while (!this.isAtEnd()) {
+            statements.push(this.declaration());
         }
+
+        return statements;
     }
 
     // Methods for parsing Expressions.
     expression() {
-        return this.equality();
+        return this.assignment();
     }
 
     equality() {
@@ -83,6 +84,9 @@ class Parser {
         if (this.match(TokenType.NUMBER, TokenType.STRING))
             return new Literal(this.previous().literal);
 
+        if (this.match(TokenType.IDENTIFIER))
+            return new Variable(this.previous());
+
         if (this.match(TokenType.LEFT_PAREN)) {
             const expr = this.expression();
             this.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression.");
@@ -90,6 +94,82 @@ class Parser {
         }
 
         throw this.error(this.peek(), "Expect expression.");
+    }
+
+    assignment() {
+        let expr = this.equality();
+
+        if (this.match(TokenType.EQUAL)) {
+            const equals = this.previous();
+            const value = this.assignment();
+
+            if (expr instanceof Variable) {
+                const name = (expr instanceof Variable) ? expr.name : null;
+                if (name !== null)
+                    return new Assign(name, value);
+            }
+
+            this.error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
+    }
+
+
+    // Methods for parsing Statements.
+    statement() {
+        if (this.match(TokenType.PRINT))
+            return this.printStatement();
+        if (this.match(TokenType.LEFT_BRACE))
+            return new Block(this.block());
+
+        return this.expressionStatement();
+    }
+
+    declaration() {
+        try {
+            if (this.match(TokenType.VAR))
+                return this.varDeclaration();
+
+            return this.statement();
+        } catch (error) {
+            this.synchronize();
+            return null;
+        }
+    }
+
+    expressionStatement() {
+        const expr = this.expression();
+        this.consume(TokenType.SEMICOLON, "Expect ';' after expression.");
+        return new Expression(expr);
+    }
+
+    printStatement() {
+        const value = this.expression();
+        this.consume(TokenType.SEMICOLON, "Expect ';' after value.");
+        return new Print(value);
+    }
+
+    varDeclaration() {
+        const name = this.consume(TokenType.IDENTIFIER, "Expect variable name.");
+
+        let initializer = null;
+        if (this.match(TokenType.EQUAL))
+            initializer = this.expression();
+
+        this.consume(TokenType.SEMICOLON, "Expect ';' after variable declaration.");
+        return new Var(name, initializer);
+    }
+
+    block() {
+        let statements = [];
+
+        while (!this.check(TokenType.RIGHT_BRACE)) {
+            statements.push(this.declaration());
+        }
+
+        this.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+        return statements;
     }
 
 

@@ -1,18 +1,36 @@
 class Interpreter {
-    // fields...
-
-    // constructor...
+    constructor() {
+        this.environment = new Environment();
+    }
 
     // Main methods for interpreting.
-    interpret(expression) {
+    interpret(statements) {
         try {
-            const value = this.evaluate(expression);
-            print(this.stringify(value));
+            statements.forEach(statement => {
+                this.execute(statement);
+            });
         } catch (error) {}
     }
 
     evaluate(expr) {
         return expr.accept(this);
+    }
+
+    execute(stmt) {
+        stmt.accept(this);
+    }
+
+    executeBlock(statements, environment) {
+        const previous = this.environment;
+        try {
+            this.environment = environment;
+
+            statements.forEach(statement => {
+                this.execute(statement);
+            });
+        } finally {
+            this.environment = previous;
+        }
     }
 
     stringify(object) {
@@ -69,9 +87,9 @@ class Interpreter {
                 return Number(left) <= Number(right);
 
             case TokenType.BANG_EQUAL:
-                return this.isEqual(left, right);
-            case TokenType.EQUAL_EQUAL:
                 return !this.isEqual(left, right);
+            case TokenType.EQUAL_EQUAL:
+                return this.isEqual(left, right);
         }
 
         // Unreachable.
@@ -100,6 +118,57 @@ class Interpreter {
         // Unreachable.
         return null;
     }
+
+    visitVariableExpr(expr) {
+        return this.environment.get(expr.name);
+    }
+
+    visitAssignExpr(expr) {
+        const value = this.evaluate(expr.value);
+        this.environment.assign(expr.name, value);
+        return value;
+    }
+
+    visitLogicalExpr(expr) {}
+    visitCallExpr(expr) {}
+    visitGetExpr(expr) {}
+    visitSetExpr(expr) {}
+    visitThisExpr(expr) {}
+    visitSuperExpr(expr) {}
+
+
+    // Statement visitors.
+    visitExpressionStmt(stmt) {
+        this.evaluate(stmt.expression);
+        return null;
+    }
+
+    visitPrintStmt(stmt) {
+        const value = this.evaluate(stmt.expression);
+        println(this.stringify(value));
+        return null;
+    }
+
+    visitVarStmt(stmt) {
+        let value = null;
+        if (stmt.initializer != null) {
+            value = this.evaluate(stmt.initializer);
+        }
+
+        this.environment.define(stmt.name.lexeme, value);
+        return null;
+    }
+    
+    visitBlockStmt(stmt) {
+        this.executeBlock(stmt.statements, new Environment(this.environment));
+        return null;
+    }
+
+    visitIfStmt(stmt) {}
+    visitWhileStmt(stmt) {}
+    visitFunctionStmt(stmt) {}
+    visitReturnStmt(stmt) {}
+    visitClassStmt(stmt) {}
 
 
     // Helper methods for better modularity.
