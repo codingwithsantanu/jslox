@@ -18,6 +18,49 @@ class Parser {
         return this.assignment();
     }
 
+    assignment() {
+        let expr = this.or();
+
+        if (this.match(TokenType.EQUAL)) {
+            const equals = this.previous();
+            const value = this.assignment();
+
+            if (expr instanceof Variable) {
+                const name = (expr instanceof Variable) ? expr.name : null;
+                if (name !== null)
+                    return new Assign(name, value);
+            }
+
+            this.error(equals, "Invalid assignment target.");
+        }
+
+        return expr;
+    }
+
+    or() {
+        let expr = this.and();
+
+        while (this.match(TokenType.OR)) {
+            const operator = this.previous();
+            const right = this.and();
+            expr = new Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
+    and() {
+        let expr = this.equality();
+
+        while (this.match(TokenType.AND)) {
+            const operator = this.previous();
+            const right = this.equality();
+            expr = new Logical(expr, operator, right);
+        }
+
+        return expr;
+    }
+
     equality() {
         let expr = this.comparison();
 
@@ -96,25 +139,6 @@ class Parser {
         throw this.error(this.peek(), "Expect expression.");
     }
 
-    assignment() {
-        let expr = this.equality();
-
-        if (this.match(TokenType.EQUAL)) {
-            const equals = this.previous();
-            const value = this.assignment();
-
-            if (expr instanceof Variable) {
-                const name = (expr instanceof Variable) ? expr.name : null;
-                if (name !== null)
-                    return new Assign(name, value);
-            }
-
-            this.error(equals, "Invalid assignment target.");
-        }
-
-        return expr;
-    }
-
 
     // Methods for parsing Statements.
     statement() {
@@ -122,6 +146,12 @@ class Parser {
             return this.printStatement();
         if (this.match(TokenType.LEFT_BRACE))
             return new Block(this.block());
+        if (this.match(TokenType.IF))
+            return this.ifStatement();
+        if (this.match(TokenType.WHILE))
+            return this.whileStatement();
+        if (this.match(TokenType.FOR))
+            return this.forStatement();
 
         return this.expressionStatement();
     }
@@ -170,6 +200,87 @@ class Parser {
 
         this.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
         return statements;
+    }
+
+    ifStatement() {
+        this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+        const condition = this.expression();
+        this.consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
+
+        const thenBranch = this.statement();
+        let elseBranch = null;
+        if (this.match(TokenType.ELSE)) {
+            elseBranch = this.statement();
+        }
+
+        return new If(condition, thenBranch, elseBranch);
+    }
+
+    whileStatement() {
+        this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+        const condition = this.expression();
+        this.consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
+
+        const body = this.statement();
+        return new While(condition, body);
+    }
+
+    forStatement() {
+        // This statement is complex as we need to
+        // desugarise it. Let's consume the args first.
+        this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+        
+        let initializer;
+        if (this.match(TokenType.SEMICOLON)) {
+            initializer = null;
+        } else if (this.match(TokenType.VAR)) {
+            initializer = this.varDeclaration();
+        } else {
+            initializer = this.expressionStatement();
+        }
+
+        let condition = null;
+        if (!this.check(TokenType.SEMICOLON)) {
+            condition = this.expression();
+        }
+        this.consume(TokenType.SEMICOLON, "Expect ';' after loop condition.");
+
+        let increment = null;
+        if (!this.check(TokenType.RIGHT_PAREN)) {
+            increment = this.expression();
+        }
+
+        this.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clauses.");
+        let body = this.statement();
+        
+        // After the args we need to structure the Stmt.
+        if (increment != null) {
+            body = new Block([
+                body,
+                new Expression(increment)
+            ]);
+        }
+
+        if (condition == null)
+            condition = new Literal(true);
+        body = new While(condition, body);
+
+        if (initializer != null) {
+            body = new Block([initializer, body]);
+        }
+
+        /* 
+          Structure:
+           {
+               initializer;
+               {
+                   body;
+                   increment;
+               }
+           }
+        */
+
+        return body;
     }
 
 

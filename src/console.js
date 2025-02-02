@@ -46,6 +46,6 @@ function runtimeError(token, message) {
 }
 
 function report(line, where, message) {
-    println(`[line ${line}] Error${where}: ${message}`);
     hadError = true;
+    println(`[line ${line}] Error${where}: ${message}`);
 }

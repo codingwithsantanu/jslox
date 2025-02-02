@@ -30,10 +30,9 @@ function run() {
     if (hadError)
         return;
 
-    // println();
     // println(new AstPrinter().print(expression));
     
-    println();
+    // println();
     interpreter.interpret(statements);
 
     // console.log("Output: " + output.innerHTML);

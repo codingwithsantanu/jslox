@@ -129,7 +129,18 @@ class Interpreter {
         return value;
     }
 
-    visitLogicalExpr(expr) {}
+    visitLogicalExpr(expr) {
+        const left = this.evaluate(expr.left);
+
+        if (expr.operator.type === TokenType.OR) {
+            if (this.isTruthy(left)) return left;
+        } else {
+            if (!this.isTruthy(left)) return left;
+        }
+
+        return this.evaluate(expr.right);
+    }
+
     visitCallExpr(expr) {}
     visitGetExpr(expr) {}
     visitSetExpr(expr) {}
@@ -164,8 +175,24 @@ class Interpreter {
         return null;
     }
 
-    visitIfStmt(stmt) {}
-    visitWhileStmt(stmt) {}
+    visitIfStmt(stmt) {
+        if (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.thenBranch);
+        } else if (stmt.elseBranch != null) {
+            this.execute(stmt.elseBranch);
+        }
+
+        return null;
+    }
+
+    visitWhileStmt(stmt) {
+        while (this.isTruthy(this.evaluate(stmt.condition))) {
+            this.execute(stmt.body);
+        }
+
+        return null;
+    }
+
     visitFunctionStmt(stmt) {}
     visitReturnStmt(stmt) {}
     visitClassStmt(stmt) {}
