@@ -68,7 +68,7 @@ class Scanner {
                 this.addToken(this.match('=') ? TokenType.BANG_EQUAL : TokenType.BANG);
                 break;
             case '=':
-                this.addToken(this.match('=') ? ETokenType.QUAL_EQUAL : TokenType.EQUAL);
+                this.addToken(this.match('=') ? TokenType.EQUAL_EQUAL : TokenType.EQUAL);
                 break;
             case '<':
                 this.addToken(this.match('=') ? TokenType.LESS_EQUAL : TokenType.LESS);
