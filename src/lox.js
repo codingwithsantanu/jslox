@@ -29,10 +29,7 @@ function run() {
         return;
 
     println();
-    println(new AstPrinter().print(expression));
-    
-    println();
-    interpreter.interpret(expression);
+    print(new AstPrinter().print(expression));
 
     // console.log("Output: " + output.innerHTML);
 }
