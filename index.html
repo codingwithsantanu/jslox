@@ -9,10 +9,7 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <textarea id="input-field"></textarea>
-    <div id="editor">
-        <span class="active" style="color: gray">Write your code here...</span>
-    </div>
+    <textarea id="editor" placeholder="Write your code here..." autocomplete="false" autocapitalize="false" spellcheck="false"></textarea>
     <button onclick="run()">Run Program</button>
     <div id="output">Output will appear here...</div>
 
@@ -21,8 +18,10 @@
     <script src="src/tokens.js"></script>
     <script src="src/scanner.js"></script>
     <script src="src/expr.js"></script>
+    <script src="src/parser.js"></script>
+    <script src="src/interpreter.js"></script>
     <script src="tool/astPrinter.js"></script>
-    <script src="tool/syntaxHighlighter.js"></script>
+    <!-- <script src="tool/syntaxHighlighter.js"></script> -->
     <script src="src/lox.js"></script>
     <script src="main.js"></script>
 </body>

@@ -1,5 +1,4 @@
 // Fetch all the required elements.
-const inputField = document.getElementById("input-field");
 const editor = document.getElementById("editor");
 const output = document.getElementById("output");
 
@@ -31,6 +30,19 @@ let hadRuntimeError = false;
 
 function error(line, message) {
     report(line, "", message);
+}
+
+function parseError(token, message) {
+    if (token.type === TokenType.EOF) {
+        report(token.line, " at end", message);
+    } else {
+        report(token.line, " at '" + token.lexeme + "'", message);
+    }
+}
+
+function runtimeError(token, message) {
+    hadRuntimeError = true;
+    println(`[line ${token.line}] ${message}`);
 }
 
 function report(line, where, message) {

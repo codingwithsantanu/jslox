@@ -16,9 +16,10 @@ const COLORS = Object.freeze({
 
 
 class _Token {
-    constructor(lexeme, color) {
+    constructor(lexeme, color, index) {
         this.lexeme = lexeme;
         this.color = color;
+        this.index = index;
     }
 
     getTag() {
@@ -150,7 +151,8 @@ class Highlighter {
         }
         this.advance();
 
-        const value = this.source.substring(this.start, this.current);
+        let value = this.source.substring(this.start, this.current);
+        value = value.replaceAll(' ', "&nbsp;").replaceAll('\r', "").replaceAll("\t", "&nbsp;" * 4).replaceAll('\n', "</span><br><span>");
         this.addToken(value, COLORS.LIGHTBLUE);
     }
 
@@ -229,6 +231,13 @@ class Highlighter {
 
 
     addToken(lexeme, color) {
-        this.tokens.push(new _Token(lexeme, color));
+        if (color == null) {
+            this.tokens.push(new _Token(lexeme, color, this.current));
+            return;
+        }
+
+        for (var i = 0; i < lexeme.length; i++) {
+            this.tokens.push(new _Token(lexeme[i], color, this.start + i));
+        }
     }
 }

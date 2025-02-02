@@ -1,5 +1,11 @@
+const interpreter = new Interpreter();
+
+function getSource() {
+    return editor.value;
+}
+
 function run() {
-    const source = inputField.value;
+    const source = getSource();
 
     output.innerHTML = "";
     hadError = false;
@@ -16,5 +22,17 @@ function run() {
         println(token.toString());
     });
 
-    console.log("Output: " + output.innerHTML);
+    const parser = new Parser(tokens);
+    const expression = parser.parse();
+
+    if (hadError)
+        return;
+
+    println();
+    println(new AstPrinter().print(expression));
+    
+    println();
+    interpreter.interpret(expression);
+
+    // console.log("Output: " + output.innerHTML);
 }
