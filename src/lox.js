@@ -30,10 +30,12 @@ function run() {
     if (hadError)
         return;
 
-    console.log(statements);
+    statements.forEach(statement => {
+        println(statement.constructor.name);
+    });
     // println(new AstPrinter().print(expression));
     
-    // println();
+    println();
     interpreter.interpret(statements);
 
     // console.log("Output: " + output.innerHTML);
