@@ -97,6 +97,17 @@ body {
 }
 
 
+.container {
+    display: flex;
+    max-width: 90%;
+
+    margin: 10px 0;
+    gap: 10px;
+
+    justify-content: space-between;
+    align-items: center;
+}
+
 button {
     font-size: 16px;
     cursor: pointer;

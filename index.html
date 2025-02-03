@@ -10,7 +10,11 @@
 </head>
 <body>
     <textarea id="editor" placeholder="Write your code here..." autocomplete="false" autocapitalize="false" spellcheck="false"></textarea>
-    <button onclick="run()">Run Program</button>
+    <div class="container">
+        <button onclick="run()">Run Program</button>
+        <button onclick="run(true)">Run Debug</button>
+        <button onclick="copyCode()">Save Code</button>
+    </div>
     <div id="output">Output will appear here...</div>
 
     <!-- Don't change the order of scripts -->

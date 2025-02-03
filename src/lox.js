@@ -4,7 +4,13 @@ function getSource() {
     return editor.value;
 }
 
-function run() {
+function copyCode() {
+    const source = getSource();
+    navigator.clipboard.writeText(source);
+    window.alert("Code was copied to clipboard.");
+}
+
+function run(debug = false) {
     const source = getSource();
 
     output.innerHTML = "";
@@ -18,11 +24,12 @@ function run() {
         return;
 
     // Let's print the tokens first.
-    tokens.forEach(token => {
-        println(token.toString());
-    });
-
-    println();
+    if (debug) {
+        tokens.forEach(token => {
+            println(token.toString());
+        });
+        println();
+    }
 
     const parser = new Parser(tokens);
     const statements = parser.parse();
@@ -30,12 +37,14 @@ function run() {
     if (hadError)
         return;
 
-    statements.forEach(statement => {
-        println(statement.constructor.name);
-    });
-    // println(new AstPrinter().print(expression));
-    
-    println();
+    // Then we can display the AST.
+    if (debug) {
+        statements.forEach(statement => {
+            println(statement.constructor.name);
+        });
+        println();
+    }
+
     interpreter.interpret(statements);
 
     // console.log("Output: " + output.innerHTML);
