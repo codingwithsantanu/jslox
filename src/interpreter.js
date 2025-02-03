@@ -1,6 +1,19 @@
 class Interpreter {
     constructor() {
-        this.environment = new Environment();
+        this.globals = new Environment();
+        this.globals.define(
+            "clock",
+            new class extends LoxCallable {
+                call(interpreter, _arguments) {
+                    return performance.now() / 1000.0;
+                }
+
+                arity() { return 0; }
+                toString() { return "<native-fn>"; }
+            }
+        );
+
+        this.environment = this.globals;
     }
 
     // Main methods for interpreting.
@@ -141,7 +154,31 @@ class Interpreter {
         return this.evaluate(expr.right);
     }
 
-    visitCallExpr(expr) {}
+    visitCallExpr(expr) {
+        const callee = this.evaluate(expr.callee);
+
+        let args = [];
+        expr.args.forEach(arg => {
+            args.push(this.evaluate(arg));
+        });
+
+        if (!(callee instanceof LoxCallable)) {
+            runtimeError(expr.paren, "Can only call functions and classes.");
+            throw new Error();
+        }
+
+        const fn = callee;
+        if (args.length != fn.arity()) {
+            runtimeError(
+                expr.paren,
+                `Expected ${fn.arity()} arguments ` +
+                `but got ${args.length}.`
+            );
+            throw new Error();
+        }
+        return fn.call(this, args);
+    }
+
     visitGetExpr(expr) {}
     visitSetExpr(expr) {}
     visitThisExpr(expr) {}
@@ -193,8 +230,17 @@ class Interpreter {
         return null;
     }
 
-    visitFunctionStmt(stmt) {}
-    visitReturnStmt(stmt) {}
+    visitFunctionStmt(stmt) {
+        const fn = new LoxFunction(stmt, this.environment);
+        this.environment.define(stmt.name.lexeme, fn);
+        return null;
+    }
+
+    visitReturnStmt(stmt) {
+        const value = this.evaluate(stmt.value);
+        throw new ReturnError(value);
+    }
+
     visitClassStmt(stmt) {}
 
 

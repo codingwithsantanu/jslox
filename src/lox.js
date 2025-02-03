@@ -30,6 +30,7 @@ function run() {
     if (hadError)
         return;
 
+    console.log(statements);
     // println(new AstPrinter().print(expression));
     
     // println();

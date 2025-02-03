@@ -8,7 +8,7 @@ class GenerateAst {
         //     "Variable : name",
         //     "Assign   : name, value", //
         //     "Logical  : left, operator, right", //
-        //     "Call     : callee, paren, _arguments",
+        //     "Call     : callee, paren, args",
         //     "Get      : object, name",
         //     "Set      : object, name, value",
         //     "This     : keyword", //

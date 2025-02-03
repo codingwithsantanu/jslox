@@ -86,11 +86,11 @@ class Logical extends Expr {
 }
 
 class Call extends Expr {
-    constructor(callee, paren, _arguments) {
+    constructor(callee, paren, args) {
         super();
         this.callee = callee;
         this.paren = paren;
-        this._arguments = _arguments;
+        this.args = args;
     }
 
     accept(visitor) {
