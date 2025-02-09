@@ -1,60 +1,65 @@
-/*
-function highlight() {
-    const source = inputField.value;
+const interpreter = new Interpreter();
 
-    const highlighter = new Highlighter(source);
-    const tokens = highlighter.scanTokens();
+// Main methods.
+function runCode(debug = false) {
+    const source = getSource();
 
-    editor.innerHTML = "";
-    for (let i = 0; i < source.length; i++) {
-        let ch = source[i];
-        switch (source[i]) {
-            case "\r": ch = ""; break;
-            case " ":  ch = "&nbsp;"; break;
-            case "\t":  ch = "&nbsp;" * 4; break;
-            case "\n":  ch = "<br>"; break;
+    // Add a running tag to show that the code is being processed.
+    output.innerHTML = "Running Code...<br><br>";
+    setTimeout(() => {
+        hadError = false;
+        hadRuntimeError = false;
+
+        const scanner = new Scanner(source);
+        const tokens = scanner.scanTokens();
+
+        if (hadError)
+            return;
+
+        // Print the tokens.
+        if (debug) {
+            tokens.forEach(token => {
+                println(token.toString());
+            });
+            println();
         }
 
-        if (i === inputField.selectionStart - 1) {
-            editor.innerHTML += `<span class="active">${ch}</span>`;
-        } else {
-            editor.innerHTML += `<span>${ch}</span>`;
+        const parser = new Parser(tokens);
+        const statements = parser.parse();
+
+        if (hadError)
+            return;
+
+        // The we can display the AST classes.
+        if (debug) {
+            statements.forEach(statement => {
+                print(statement.constructor.name);
+                println("Stmt"); // NOTE: Every statement is an instance of Stmt.
+                // println(Object.getPrototypeOf(statement.constructor).name);
+            });
+            println();
         }
 
-        console.log(inputField.selectionStart - 1, i, ch);
-    }
-    console.log(editor.innerHTML);
-
-    // editor.innerHTML = "";
-    // tokens.forEach(token => {
-    //     if (token.index == inputField.selectionEnd - 1) {
-    //         editor.innerHTML += token.getActiveTag();
-    //         console.log("This is it: ", token.getActiveTag());
-    //         // editor.innerHTML += `<br><span class="active">&ZeroWidthSpace;</span>`;
-    //     } else {
-    //         editor.innerHTML += token.getTag();
-    //     }
-
-    //     // console.log(token.lexeme, token.color, token.index);
-    // });
-
-    // console.log("Source Code: " + source);
-    // console.log("Highlighted Code: " + editor.innerHTML);
-    // console.log(inputField.selectionEnd, tokens[inputField.selectionStart - 1]);
-}
-
-function focus() {
-    inputField.focus();
-    if (editor.value !== "")
-        highlight();
+        interpreter.interpret(statements);
+        
+        output.innerHTML += "<br>Running Complete.";
+        console.log(output.innerHTML);
+    }, 0);
 }
 
 
-document.addEventListener("keydown", () => focus());
-editor.addEventListener("click", () => focus());
-inputField.addEventListener("input", highlight);
-*/
+// Helper methods.
+function getSource() {
+    return editor.value;
+}
 
+function copyCode() {
+    const source = getSource();
+    navigator.clipboard.writeText(source);
+    window.alert("Code was copied to clipboard. Thanks for trying the best programming language in the universe.");
+}
+
+
+// Focus on main textarea.
 document.addEventListener("keydown", () => editor.focus());
 editor.addEventListener("click", () => editor.focus());
-// inputField.addEventListener("input", highlight);
