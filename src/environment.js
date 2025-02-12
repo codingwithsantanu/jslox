@@ -36,4 +36,21 @@ class Environment {
         runtimeError(name, `Undefined variable '${name}'.`);
         throw new Error();
     }
+
+    getAt(distance, name) {
+        return this.ancestor(distance).values.get(name);
+    }
+
+    ancestor(distance) {
+        let environment = this;
+        for (let i = 0; i < distance; i++) {
+            environment = environment.enclosing;
+        } // It loops through the oldest environment enclosings.
+
+        return environment;
+    }
+
+    assignAt(distance, name, value) {
+        this.ancestor(distance).values[name] = value;
+    }
 }

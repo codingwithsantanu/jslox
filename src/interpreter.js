@@ -13,6 +13,7 @@ class Interpreter {
             }
         );
 
+        this.locals = {};
         this.environment = this.globals;
     }
 
@@ -58,6 +59,21 @@ class Interpreter {
         }
 
         return String(object);
+    }
+
+
+    // Methods for Resolving.
+    resolve(expr, depth) {
+        this.locals[expr] = depth;
+    }
+
+    lookUpVariable(name, expr) {
+        const distance = this.locals[expr];
+        if (distance != null) {
+            return this.environment.getAt(distance, name.lexeme);
+        } else {
+            return this.globals.get(name);
+        }
     }
 
 
@@ -138,7 +154,14 @@ class Interpreter {
 
     visitAssignExpr(expr) {
         const value = this.evaluate(expr.value);
-        this.environment.assign(expr.name, value);
+
+        const distance = this.locals.get(expr);
+        if (distance != null) {
+            this.environment.assignAt(distance, expr.name, value);
+        } else {
+            this.globals.assign(expr.name, value);
+        }
+
         return value;
     }
 

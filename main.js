@@ -40,6 +40,12 @@ function runCode(debug = false) {
             println();
         }
 
+        const resolver = new Resolver(interpreter);
+        resolver.resolve(statements);
+
+        if (hadError)
+            return;
+
         interpreter.interpret(statements);
         
         output.innerHTML += "<br>Running Complete.";
